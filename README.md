@@ -7,7 +7,7 @@ The device shows the current score via an LCD display.
 
 
 ## Features
-* Show 'score' on different sides of the bin.
+* Show 'score' for different sides of the bin.
 * Record score every day in EEPROM for up to one month.
 * Show date and time if the bin is turned over or is not standing
 * Show date and time overnight to conserve power
