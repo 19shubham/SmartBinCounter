@@ -14,9 +14,9 @@ The device shows the current score via an LCD display.
 
 ## Hardware
 
-1. Iteaduino UNO
+1. Iteaduino UNO - Arduino UNO
 2. ITDB02-1.8SP - LCD Display 128 x 160
-3. 2 x ULTRASONIC RANGING MODULE HC-SR04
+3. 2 x Ultrasonic Ranging Module HC-SR04
 4. Real Time Clock Module (DS1307) V1.1
 5. Tilt ball switch
 
