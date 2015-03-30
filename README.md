@@ -1,4 +1,4 @@
-# BinCounter
+# Smart Bin Counter
 
 Arduino based device that uses two ultrasonic distance devices to detect which side of the bin the 
 rubbish item was thrown into.
