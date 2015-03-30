@@ -84,16 +84,6 @@ BinSensor binSensorA(PIN_SIDE_A_TRIGGER, PIN_SIDE_A_ECHO);
 BinSensor binSensorB(PIN_SIDE_B_TRIGGER, PIN_SIDE_B_ECHO);
 
 
-#ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
-
-// Tilt switch
-#define PIN_TILT_SWITCH			3
-
-// #define DEBUG_TILT_SWITCH						// ** DEBUG_TILT_SWITCH
-
-#endif										// ** MODULE_TILT_SWITCH
-
-
 
 
 // General options
@@ -148,6 +138,65 @@ tmElements_t tm;					// current time from RTC
 DisplayTime displayTime;			// what time is being shown
 bool isCounterDisplayInvalid;		// redraw the counters?
 uint8_t displayMode;				// current display mode
+
+
+
+#ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
+
+// Tilt switch
+#define PIN_TILT_SWITCH			3
+
+#define TILT_ACTIVE_TIMEOUT		5
+
+uint8_t tiltActiveCounter;
+boolean isTiltSwitch;
+
+// #define DEBUG_TILT_SWITCH						// ** DEBUG_TILT_SWITCH
+
+void setTiltSwitch(boolean value) 
+{
+	isTiltSwitch = value;
+	if ( value ) {
+		if ( displayMode != MODE_PAUSE ) {
+			setMode(MODE_PAUSE);
+		}
+	}
+	else {
+		if ( displayMode == MODE_PAUSE ) {
+			setMode(MODE_COUNTERS);
+		}
+	}
+}
+
+void checkTiltSwitch()
+{
+	int value = digitalRead(PIN_TILT_SWITCH);
+
+#ifdef DEBUG_TILT_SWITCH					// ** DEBUG_TILT_SWITCH
+	sprintf(buffer,"T%d", value);
+	LCD.setFont(SmallFont);	
+	LCD.print(buffer, 140, 0);
+#endif					
+										// ** DEBUG_TILT_SWITCH
+						
+	if ( value == 1 ) {
+		if ( !isTiltSwitch ) {
+			tiltActiveCounter ++;
+			if ( tiltActiveCounter >= TILT_ACTIVE_TIMEOUT ) {
+				tiltActiveCounter = 0;
+				setTiltSwitch(true);
+			}
+		}
+	}
+	else {	
+		tiltActiveCounter = 0;
+		if ( isTiltSwitch ) {
+			setTiltSwitch(false);
+		}
+	}
+}
+
+#endif										// ** MODULE_TILT_SWITCH
 
 
 
@@ -513,6 +562,10 @@ void setup()
 	timeLogDelay = TIME_LOG_START_TIMEOUT;
 #endif										// ** MODULE_SAVE_TIME
 
+#ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
+	isTiltSwitch = false;
+	tiltActiveCounter = 0;
+#endif MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
 
 }
 
@@ -547,24 +600,7 @@ void loop()
 
 
 #ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
-	int tiltValue = digitalRead(PIN_TILT_SWITCH);
-
-#ifdef DEBUG_TILT_SWITCH					// ** DEBUG_TILT_SWITCH
-	sprintf(buffer,"T%d", tiltValue);
-	LCD.setFont(SmallFont);	
-	LCD.print(buffer, 140, 0);
-#else										// ** DEBUG_TILT_SWITCH
-	if ( tiltValue == 1) {
-		if ( displayMode != MODE_PAUSE ) {
-			setMode(MODE_PAUSE);
-		}
-	}
-	else {
-		if ( displayMode == MODE_PAUSE ) {
-			setMode(MODE_COUNTERS);
-		}
-	}
-#endif 										// ** DEBUG_TILT_SWITCH
+	checkTiltSwitch();
 #endif										// ** MODULE_TILT_SWITCH
 
 	processMode();
