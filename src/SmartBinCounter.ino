@@ -37,7 +37,7 @@ Connected To:
 // #define MODULE_LOG_TIME 							// ** MODULE_LOG_TIME
 // #define MODULE_SERIAL_DEBUG						// ** MODULE_SERIAL_DEBUG
 #define MODULE_USAGE_STATS						// ** MODULE_USAGE_STATS
-#define MODULE_TILT_SWITCH						// ** MODULE_TILT_SWITCH
+// #define MODULE_TILT_SWITCH						// ** MODULE_TILT_SWITCH
 
 // Display Modes
 #define MODE_CLOCK			1					// Show time and date
@@ -506,6 +506,8 @@ void setup()
 
 #ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
 	pinMode(PIN_TILT_SWITCH, INPUT_PULLUP);
+	isTiltSwitch = false;
+	tiltActiveCounter = 0;
 #endif										// ** MODULE_TILT_SWITCH
 
 
@@ -577,10 +579,6 @@ void setup()
 	timeLogDelay = TIME_LOG_START_TIMEOUT;
 #endif										// ** MODULE_LOG_TIME
 
-#ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
-	isTiltSwitch = false;
-	tiltActiveCounter = 0;
-#endif MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
 
 }
 
