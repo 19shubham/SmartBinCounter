@@ -1,3 +1,5 @@
+
+
 /*
 
 	Bin Game with Arduino UNO
@@ -17,30 +19,43 @@ Connected To:
 		
 */
 
+
+
 #include <Arduino.h> 
+#include <EEPROM.h>
 
 #include <UTFT.h>
 #include <Time.h>
+#include <Wire.h>
 #include <DS1307RTC.h>
-#include <EEPROM.h>
 #include <LowPower.h>
 #include <BinSensor.h>
 
 // Modules
 
-// #define MODULE_WRITE_TIME 						// ** WRITE_TIME
-// #define MODULE_SAVE_TIME 						// ** MODULE_SAVE_TIME
+// #define MODULE_WRITE_TIME 						// ** MODULE_WRITE_TIME
+// #define MODULE_LOG_TIME 							// ** MODULE_LOG_TIME
 // #define MODULE_SERIAL_DEBUG						// ** MODULE_SERIAL_DEBUG
 #define MODULE_USAGE_STATS						// ** MODULE_USAGE_STATS
 #define MODULE_TILT_SWITCH						// ** MODULE_TILT_SWITCH
 
 // Display Modes
 #define MODE_CLOCK			1					// Show time and date
-#define MODE_COUNTERS		2					// Show the counters
-#define MODE_UASGE_STATS	3					// Show the usage stats
+#define MODE_COUNTERS		        2					// Show the counters
+#define MODE_UASGE_STATS	        3					// Show the usage stats
 #define MODE_PAUSE			4					// Show a pause display with time/date
 
+// change below if you want to set the time
+#ifdef MODULE_WRITE_TIME                                                // ** MODULE_WRITE_TIME
 
+#define WRITE_TIME_YEAR             2015
+#define WRITE_TIME_MONTH            03
+#define WRITE_TIME_DAY              31
+#define WRITE_TIME_DOW              4
+#define WRITE_TIME_HOUR             18
+#define WRITE_TIME_MINUT            22
+
+#endif                                                                  // ** MODULE_WRITE_TIME
 /* Display Pins
 
 	Display			Arduino
@@ -89,20 +104,20 @@ BinSensor binSensorB(PIN_SIDE_B_TRIGGER, PIN_SIDE_B_ECHO);
 // General options
 
 #define COUNTER_YPOS				30
-#define DISTANCE_CHANGE_AMOUNT		20	 			// minimum cm change in range to recognise a hit
+#define DISTANCE_CHANGE_AMOUNT		        20	 			// minimum cm change in range to recognise a hit
 #define SENSOR_HIT_TIMEOUT			4 				// number of ticks before looking for another hit
 #define MAX_COUNTER_VALUE			999				// max value for the counter
 #define MODE_COUNTERS_DELAY			SLEEP_60MS		// delay time between each ultrasonic test
-#define MODE_CLOCK_SECOND_DELAY		SLEEP_60MS		// delay between each clock second display
-#define MODE_CLOCK_MINUTE_DELAY		SLEEP_8S		// delay between each clock minute display
-#define MAX_DISTANCE_ALLOWED		300				// max distance allowed from the ultrasonic sensors
+#define MODE_CLOCK_SECOND_DELAY		        SLEEP_60MS		// delay between each clock second display
+#define MODE_CLOCK_MINUTE_DELAY		        SLEEP_8S		// delay between each clock minute display
+#define MAX_DISTANCE_ALLOWED		        300				// max distance allowed from the ultrasonic sensors
 #define MODE_PAUSE_DELAY			SLEEP_8S		// pause sleep time
 // only used if module usage stats is enabled
-#define MODE_USAGE_STATS_DELAY		SLEEP_4S		// time to sleep while showing stats
+#define MODE_USAGE_STATS_DELAY		        SLEEP_4S		// time to sleep while showing stats
 
 // to save power switch to clock mode between theses times below
-#define SLEEP_START_HOUR			22				// enter MODE_CLOCK starting from this hour  - comment out to disable 
-#define SLEEP_STOP_HOUR				07				// exit MODE_CLOCK after this hour - comment out to disable
+// #define SLEEP_START_HOUR			22				// enter MODE_CLOCK starting from this hour  - comment out to disable 
+// #define SLEEP_STOP_HOUR				07				// exit MODE_CLOCK after this hour - comment out to disable
 
 
 
@@ -251,7 +266,7 @@ void showUsageStats()
 #endif 										// ** MODULE_USAGE_STATS
 
 
-#ifdef MODULE_SAVE_TIME						// ** MODULE_SAVE_TIME
+#ifdef MODULE_LOG_TIME						// ** MODULE_LOG_TIME
 
 #include "TimeLog.h"
 #define TIME_LOG_START_TIMEOUT				90
@@ -278,7 +293,7 @@ void showTimeLog()
 	LCD.print(buffer, 100, 0);
 }
 
-#endif										// ** MODULE_SAVE_TIME
+#endif										// ** MODULE_LOG_TIME
 
 
 void showClock(tmElements_t &tm, bool showSeconds, bool showSleep)
@@ -500,13 +515,13 @@ void setup()
 
 #ifdef MODULE_WRITE_TIME					// ** MODULE_WRITE_TIME	
 	delay(500);
-	tm.Year = 2015;
-	tm.Month = 3;
-	tm.Day = 30;
-	tm.Hour = 15;
-	tm.Minute = 35;
+	tm.Year = WRITE_TIME_YEAR;
+	tm.Month = WRITE_TIME_MONTH;
+	tm.Day = WRITE_TIME_DAY;
+	tm.Hour = WRITE_TIME_HOUR;
+	tm.Minute = WRITE_TIME_MINUTE;
 	tm.Second = 0;
-	tm.Wday = 2;
+	tm.Wday = WRITE_TIME_DOW;
 	RTC.write(tm);
 	delay(1000);
 #endif										// ** MODULE_WRITE_TIME
@@ -544,7 +559,7 @@ void setup()
 
 	
 
-#ifdef MODULE_SAVE_TIME						// ** MODULE_SAVE_TIME
+#ifdef MODULE_LOG_TIME						// ** MODULE_LOG_TIME
 	if ( timeLog.begin() ) {
 #ifdef MODULE_SERIAL_DEBUG					// ** MODULE_SERIAL_DEBUG
 
@@ -560,7 +575,7 @@ void setup()
 		showTimeLog();
 	}
 	timeLogDelay = TIME_LOG_START_TIMEOUT;
-#endif										// ** MODULE_SAVE_TIME
+#endif										// ** MODULE_LOG_TIME
 
 #ifdef MODULE_TILT_SWITCH					// ** MODULE_TILT_SWITCH
 	isTiltSwitch = false;
@@ -605,7 +620,7 @@ void loop()
 
 	processMode();
 	
-#ifdef MODULE_SAVE_TIME						// ** MODULE_SAVE_TIME
+#ifdef MODULE_LOG_TIME						// ** MODULE_LOG_TIME
 	if ( timeLogDelay == 0 ) {
 		if ( timeLog.update(tm) ) {
 #ifdef MODULE_SERIAL_DEBUG					// ** MODULE_SERIAL_DEBUG		
@@ -617,6 +632,6 @@ void loop()
 	else {
 		timeLogDelay --;
 	}
-#endif										// ** MODULE_SAVE_TIME
+#endif										// ** MODULE_LOG_TIME
 
 }
