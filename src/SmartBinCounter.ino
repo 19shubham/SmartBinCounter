@@ -37,7 +37,7 @@ Connected To:
 // #define MODULE_LOG_TIME 							// ** MODULE_LOG_TIME
 // #define MODULE_SERIAL_DEBUG						// ** MODULE_SERIAL_DEBUG
 #define MODULE_USAGE_STATS						// ** MODULE_USAGE_STATS
-// #define MODULE_TILT_SWITCH						// ** MODULE_TILT_SWITCH
+#define MODULE_TILT_SWITCH						// ** MODULE_TILT_SWITCH
 
 // Display Modes
 #define MODE_CLOCK			1					// Show time and date
@@ -45,17 +45,16 @@ Connected To:
 #define MODE_UASGE_STATS	        3					// Show the usage stats
 #define MODE_PAUSE			4					// Show a pause display with time/date
 
-// change below if you want to set the time
-#ifdef MODULE_WRITE_TIME                                                // ** MODULE_WRITE_TIME
+
+// change below if you want to set the time, or if the time is set to zero ..
 
 #define WRITE_TIME_YEAR             2015
-#define WRITE_TIME_MONTH            03
-#define WRITE_TIME_DAY              31
-#define WRITE_TIME_DOW              4
-#define WRITE_TIME_HOUR             18
-#define WRITE_TIME_MINUT            22
+#define WRITE_TIME_MONTH            4
+#define WRITE_TIME_DAY              1		
+#define WRITE_TIME_DOW              4			// 1 = Sunday, 2= Monday ...
+#define WRITE_TIME_HOUR             8
+#define WRITE_TIME_MINUTE           45
 
-#endif                                                                  // ** MODULE_WRITE_TIME
 /* Display Pins
 
 	Display			Arduino
@@ -103,15 +102,15 @@ BinSensor binSensorB(PIN_SIDE_B_TRIGGER, PIN_SIDE_B_ECHO);
 
 // General options
 
-#define COUNTER_YPOS				30
+#define COUNTER_YPOS						30
 #define DISTANCE_CHANGE_AMOUNT		        20	 			// minimum cm change in range to recognise a hit
-#define SENSOR_HIT_TIMEOUT			4 				// number of ticks before looking for another hit
-#define MAX_COUNTER_VALUE			999				// max value for the counter
-#define MODE_COUNTERS_DELAY			SLEEP_60MS		// delay time between each ultrasonic test
+#define SENSOR_HIT_TIMEOUT					4 				// number of ticks before looking for another hit
+#define MAX_COUNTER_VALUE					999				// max value for the counter
+#define MODE_COUNTERS_DELAY					SLEEP_60MS		// delay time between each ultrasonic test
 #define MODE_CLOCK_SECOND_DELAY		        SLEEP_60MS		// delay between each clock second display
 #define MODE_CLOCK_MINUTE_DELAY		        SLEEP_8S		// delay between each clock minute display
 #define MAX_DISTANCE_ALLOWED		        300				// max distance allowed from the ultrasonic sensors
-#define MODE_PAUSE_DELAY			SLEEP_8S		// pause sleep time
+#define MODE_PAUSE_DELAY					SLEEP_8S		// pause sleep time
 // only used if module usage stats is enabled
 #define MODE_USAGE_STATS_DELAY		        SLEEP_4S		// time to sleep while showing stats
 
@@ -295,6 +294,12 @@ void showTimeLog()
 
 #endif										// ** MODULE_LOG_TIME
 
+void showPause()
+{
+	LCD.setFont(BigFont);	
+	LCD.setColor(0, 255, 255);
+	LCD.print("Pause", 40, 60);
+}
 
 void showClock(tmElements_t &tm, bool showSeconds, bool showSleep)
 {
@@ -484,7 +489,7 @@ void processMode()
 
 		break;
 		case MODE_PAUSE:
-			showClock(tm, false, false);
+			showPause();
 			LowPower.powerDown(MODE_PAUSE_DELAY, ADC_OFF, BOD_OFF);
 		
 		break;
@@ -515,8 +520,11 @@ void setup()
 	LCD.clrScr();
 	LCD.setContrast(84);
 
+	delay(100);
+	RTC.read(tm);
+
+
 #ifdef MODULE_WRITE_TIME					// ** MODULE_WRITE_TIME	
-	delay(500);
 	tm.Year = WRITE_TIME_YEAR;
 	tm.Month = WRITE_TIME_MONTH;
 	tm.Day = WRITE_TIME_DAY;
@@ -525,11 +533,23 @@ void setup()
 	tm.Second = 0;
 	tm.Wday = WRITE_TIME_DOW;
 	RTC.write(tm);
-	delay(1000);
+	delay(500);
+	RTC.read(tm);
 #endif										// ** MODULE_WRITE_TIME
 
-	RTC.read(tm);
+	if ( tm.Year == 0 || tm.Month == 0 || tm.Day == 0 ) {
+		tm.Year = WRITE_TIME_YEAR;
+		tm.Month = WRITE_TIME_MONTH;
+		tm.Day = WRITE_TIME_DAY;
+		tm.Hour = WRITE_TIME_HOUR;
+		tm.Minute = WRITE_TIME_MINUTE;
+		tm.Second = 0;
+		tm.Wday = WRITE_TIME_DOW;
+		RTC.write(tm);
+		delay(500);
+	}
 
+	RTC.read(tm);
 
 
 	binSensorA.begin(MAX_DISTANCE_ALLOWED, DISTANCE_CHANGE_AMOUNT, SENSOR_HIT_TIMEOUT, MAX_COUNTER_VALUE);

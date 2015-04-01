@@ -23,11 +23,11 @@ typedef struct {
 	unsigned int countLid;		// 2 
 } UsageStatsData;				// Total = 8 bytes
 
-#define USAGE_DATA_EEPROM_SIG					0x42
+#define USAGE_DATA_EEPROM_SIG					0x44
 
 #define USAGE_DATA_EEPROM_DATA_OFFSET			0x01		
 
-#define USAGE_DATA_MAX_COUNT					31			// max 31 days in a month	
+#define USAGE_DATA_MAX_COUNT					32			// max 31 days in a month + 1 	
 
  
 class UsageStats {

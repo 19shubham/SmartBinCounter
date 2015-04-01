@@ -85,7 +85,7 @@ UsageStatsData& UsageStats::getData()
 // usage read data from EEPROM
 void UsageStats::readData(UsageStatsData &data, uint8_t day)
 {
-	uint8_t index = day - 1;
+	uint8_t index = day;
 	if ( index < USAGE_DATA_MAX_COUNT ) {
 		int position = USAGE_DATA_EEPROM_DATA_OFFSET + ( sizeof(UsageStatsData) * index );
 		readDataAtOffset(data, position);
@@ -96,7 +96,7 @@ void UsageStats::readData(UsageStatsData &data, uint8_t day)
 // write usage data to EEPROM
 void UsageStats::writeData(UsageStatsData &data, uint8_t day)
 {
-	uint8_t index = day - 1;
+	uint8_t index = day;
 	if ( index < USAGE_DATA_MAX_COUNT ) {
 		data.day = day;
 		int position = USAGE_DATA_EEPROM_DATA_OFFSET + ( sizeof(UsageStatsData) * index );
