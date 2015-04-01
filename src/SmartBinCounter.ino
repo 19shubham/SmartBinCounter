@@ -113,7 +113,9 @@ BinSensor binSensorB(PIN_SIDE_B_TRIGGER, PIN_SIDE_B_ECHO);
 #define MODE_PAUSE_DELAY					SLEEP_8S		// pause sleep time
 // only used if module usage stats is enabled
 #define MODE_USAGE_STATS_DELAY		        SLEEP_4S		// time to sleep while showing stats
-#define STARTUP_DELAY						SLEEP_8S		// time to sleep when first starting up				
+#define STARTUP_DELAY						SLEEP_1S		// time to sleep when first starting up	
+#define STARTUP_DELAY_COUNT					20				// number of times STARTUP_DELAY is called	
+#define RESET_COUNTERS_ON_STARTUP							// if defined then reset counters
 
 // to save power switch to clock mode between theses times below
 // #define SLEEP_START_HOUR			22				// enter MODE_CLOCK starting from this hour  - comment out to disable 
@@ -299,10 +301,10 @@ void showPause(char *message)
 {
 	LCD.setFont(BigFont);	
 	LCD.setColor(0, 255, 255);
-	LCD.print("Pause", 40, 60);
+	LCD.print("Pause", 40, 50);
 
 	LCD.setFont(SmallFont);	
-	LCD.setColor(0, 255, 0);
+	LCD.setColor(0, 0, 255);
 	LCD.print(message, 60, 100);
 
 }
@@ -574,9 +576,13 @@ void setup()
 		}
 #endif										// ** MODULE_SERIAL_DEBUG	
 	}
+#ifdef RESET_COUNTERS_ON_STARTUP
+	binSensorA.setCounter(0);
+	binSensorB.setCounter(0);
+#else
 	binSensorA.setCounter(usageStats.getData().countA);
 	binSensorB.setCounter(usageStats.getData().countB);
-	
+#endif	
 	memset(&usageStatsInfo, 0, sizeof(UsageStatsInfo));
 	if ( displayOptions.isUsageModeViewOnStartup == 1 ) {
 		usageStatsInfo.timeout = USAGE_STATS_SHOW_TIME;
@@ -605,8 +611,14 @@ void setup()
 	timeLogDelay = TIME_LOG_START_TIMEOUT;
 #endif										// ** MODULE_LOG_TIME
 
-	showPause("Starting");
-	LowPower.powerDown(STARTUP_DELAY, ADC_OFF, BOD_OFF);
+#ifdef STARTUP_DELAY
+	for ( uint8_t i = STARTUP_DELAY_COUNT; i >0 ; i -- ) {
+		sprintf(buffer, "Staring %2d", i);
+		showPause(buffer);
+		LowPower.powerDown(STARTUP_DELAY, ADC_OFF, BOD_OFF);
+	}
+#endif
+
 
 	setMode(MODE_COUNTERS);
 
