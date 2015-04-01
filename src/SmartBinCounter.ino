@@ -40,10 +40,10 @@ Connected To:
 #define MODULE_TILT_SWITCH						// ** MODULE_TILT_SWITCH
 
 // Display Modes
-#define MODE_CLOCK			1					// Show time and date
+#define MODE_CLOCK					1					// Show time and date
 #define MODE_COUNTERS		        2					// Show the counters
 #define MODE_UASGE_STATS	        3					// Show the usage stats
-#define MODE_PAUSE			4					// Show a pause display with time/date
+#define MODE_PAUSE					4					// Show a pause display with time/date
 
 
 // change below if you want to set the time, or if the time is set to zero ..
@@ -52,8 +52,8 @@ Connected To:
 #define WRITE_TIME_MONTH            4
 #define WRITE_TIME_DAY              1		
 #define WRITE_TIME_DOW              4			// 1 = Sunday, 2= Monday ...
-#define WRITE_TIME_HOUR             8
-#define WRITE_TIME_MINUTE           45
+#define WRITE_TIME_HOUR             17
+#define WRITE_TIME_MINUTE           0
 
 /* Display Pins
 
@@ -193,7 +193,7 @@ void checkTiltSwitch()
 #endif					
 										// ** DEBUG_TILT_SWITCH
 						
-	if ( value == 1 ) {
+	if ( value == HIGH ) {
 		if ( !isTiltSwitch ) {
 			tiltActiveCounter ++;
 			if ( tiltActiveCounter >= TILT_ACTIVE_TIMEOUT ) {
