@@ -113,6 +113,7 @@ BinSensor binSensorB(PIN_SIDE_B_TRIGGER, PIN_SIDE_B_ECHO);
 #define MODE_PAUSE_DELAY					SLEEP_8S		// pause sleep time
 // only used if module usage stats is enabled
 #define MODE_USAGE_STATS_DELAY		        SLEEP_4S		// time to sleep while showing stats
+#define STARTUP_DELAY						SLEEP_8S		// time to sleep when first starting up				
 
 // to save power switch to clock mode between theses times below
 // #define SLEEP_START_HOUR			22				// enter MODE_CLOCK starting from this hour  - comment out to disable 
@@ -294,11 +295,16 @@ void showTimeLog()
 
 #endif										// ** MODULE_LOG_TIME
 
-void showPause()
+void showPause(char *message)
 {
 	LCD.setFont(BigFont);	
 	LCD.setColor(0, 255, 255);
 	LCD.print("Pause", 40, 60);
+
+	LCD.setFont(SmallFont);	
+	LCD.setColor(0, 255, 0);
+	LCD.print(message, 60, 100);
+
 }
 
 void showClock(tmElements_t &tm, bool showSeconds, bool showSleep)
@@ -489,7 +495,7 @@ void processMode()
 
 		break;
 		case MODE_PAUSE:
-			showPause();
+			showPause("Tilt");
 			LowPower.powerDown(MODE_PAUSE_DELAY, ADC_OFF, BOD_OFF);
 		
 		break;
@@ -599,6 +605,10 @@ void setup()
 	timeLogDelay = TIME_LOG_START_TIMEOUT;
 #endif										// ** MODULE_LOG_TIME
 
+	showPause("Starting");
+	LowPower.powerDown(STARTUP_DELAY, ADC_OFF, BOD_OFF);
+
+	setMode(MODE_COUNTERS);
 
 }
 
