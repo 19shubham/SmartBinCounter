@@ -31,6 +31,7 @@ Connected To:
 #include <LowPower.h>
 #include <BinSensor.h>
 
+
 // Modules
 
 // #define MODULE_WRITE_TIME 						// ** MODULE_WRITE_TIME
@@ -52,8 +53,8 @@ Connected To:
 #define WRITE_TIME_MONTH            4
 #define WRITE_TIME_DAY              1		
 #define WRITE_TIME_DOW              4			// 1 = Sunday, 2= Monday ...
-#define WRITE_TIME_HOUR             17
-#define WRITE_TIME_MINUTE           0
+#define WRITE_TIME_HOUR             20
+#define WRITE_TIME_MINUTE           10
 
 /* Display Pins
 
@@ -613,7 +614,7 @@ void setup()
 
 #ifdef STARTUP_DELAY
 	for ( uint8_t i = STARTUP_DELAY_COUNT; i >0 ; i -- ) {
-		sprintf(buffer, "Staring %2d", i);
+		sprintf(buffer, "Starting %2d", i);
 		showPause(buffer);
 		LowPower.powerDown(STARTUP_DELAY, ADC_OFF, BOD_OFF);
 	}
